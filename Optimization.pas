@@ -1,0 +1,482 @@
+unit Optimization;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ShellApi, StdCtrls, Registry, jpeg, ExtCtrls, Buttons, ComCtrls, Masks,
+  Vcl.Menus, GifImg, IOUtils, MATH, Vcl.CheckLst, Vcl.Imaging.pngimage;
+
+procedure RegEdit(way: string; key: string; val: string);
+procedure StartBoost;
+procedure ShutDownBoost;
+procedure move(codekey : integer; n : integer);
+procedure VE_switch();
+
+type
+  Service = class(TObject)
+    const w = 'SYSTEM\CurrentControlSet\Services\';
+  private
+    procedure switch(way : string; val : integer);
+  public
+    procedure OfflineFiles(val : integer);overload;//Автономные файлы
+    procedure OfflineFiles(cb : TCheckBox);overload;
+
+    procedure BiomWinSvc(val : integer);overload;//Биометрическая служба Windows
+    procedure BiomWinSvc(cb : TCheckBox);overload;
+
+    procedure Firewall(val : integer);overload;//Брендмауэр
+    procedure Firewall(cb : TCheckBox);overload;
+
+    procedure IPHelperSvc(val : integer);overload;//Вспомогательная служба IP
+    procedure IPHelperSvc(cb : TCheckBox);overload;
+
+    procedure SecLog(val : integer);overload;//Вторичный вход в систему
+    procedure SecLog(cb : TCheckBox);overload;
+
+    procedure PrintManager(val : integer);overload;//Диспетчер печати
+    procedure PrintManager(cb : TCheckBox);overload;
+
+    procedure SessionManager(val : integer);overload;//Диспетчер сеансов диспетчера окон рабочего стола
+    procedure SessionManager(cb : TCheckBox);overload;
+
+    procedure DowMapManager(val : integer);overload;//Диспетчер скачанных карт
+    procedure DowMapManager(cb : TCheckBox);overload;
+
+    procedure SecureStorage(val : integer);overload;//Защищённое хранилище
+    procedure SecureStorage(cb : TCheckBox);overload;
+
+    procedure Server(val : integer);overload;//Сервер
+    procedure Server(cb : TCheckBox);overload;
+
+    procedure XboxLiveNet(val : integer);overload;//Сетевая служба Xbox Live
+    procedure XboxLiveNet(cb : TCheckBox);overload;
+
+    procedure TabletInputSvc(val : integer);overload;//Служба ввода планшетного пк
+    procedure TabletInputSvc(cb : TCheckBox);overload;
+
+    procedure DiagTrackSvc(val : integer);overload;//Служба диогнастического отслеживания
+    procedure DiagTrackSvc(cb : TCheckBox);overload;
+
+    //procedure WinDefSvc(val : integer);overload;//Служба защитника Windows
+   // procedure WinDefSvc(cb : TCheckBox);overload;
+
+    //procedure DiagPolicySvc(val : integer);overload;//Служба политики диагностики
+   // procedure DiagPolicySvc(cb : TCheckBox);overload;
+
+    procedure ProgCompatbltyAssistSvc(val : integer);overload;//Служба помощника по совместимости программ
+    procedure ProgCompatbltyAssistSvc(cb : TCheckBox);overload;
+
+    procedure WinErrLogSvc(val : integer);overload;//Служба регистрации ошибок виндовс
+    procedure WinErrLogSvc(cb : TCheckBox);overload;
+
+    procedure BitLockDrvEncryptSvc(val : integer);overload;//Служба шифрования дисков BitLocker
+    procedure BitLockDrvEncryptSvc(cb : TCheckBox);overload;
+
+    procedure Themes(val : integer);overload;//Темы
+    procedure Themes(cb : TCheckBox);overload;
+
+    procedure RemoteReg(val : integer);overload;//Удаленный реестр
+    procedure RemoteReg(cb : TCheckBox);overload;
+
+    procedure SecurityCenter(val : integer);overload;//Центр обеспечения безопасности
+    procedure SecurityCenter(cb : TCheckBox);overload;
+
+    procedure Superfetch(val : integer);overload;//Superfetch
+    procedure Superfetch(cb : TCheckBox);overload;
+end;
+
+implementation
+  uses Form;
+
+procedure Service.switch(way: string; val : integer);
+  var
+    Reg: TRegistry;
+  begin
+  Reg := TRegistry.Create;
+  Reg.RootKey := HKEY_LOCAL_MACHINE;
+    if val=0
+      then
+        begin
+          Reg.OpenKey(way, false);
+          Reg.WriteInteger('Start', 3);
+        end
+      else
+        begin
+          Reg.OpenKey(way, false);
+          Reg.WriteInteger('Start', 2);
+        end;
+        Reg.CloseKey;
+        Reg.Free;
+  end;
+
+procedure Service.BiomWinSvc(cb: TCheckBox);
+  begin
+    cb.Caption := 'Биометрическая служба Windows';
+    cb.Hint := 'Сбор, обработка и хранение биометрических данных.';
+  end;
+procedure Service.BiomWinSvc(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := 'SYSTEM\CurrentControlSet\Services\WbioSrvc';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.Firewall(cb : TCheckBox);
+  begin
+    cb.Caption := 'Брандмауэр';
+    cb.Hint := 'Если вы используете сторонний антивирус, а не брандмауэр Windows, то данная служба не актуальна';
+  end;
+procedure Service.Firewall(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'MpsSvc';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.IPHelperSvc(cb : TCheckBox);
+  begin
+    cb.Caption := 'Вспомогательная служба IP';
+    cb.Hint := 'Если вы не используете IPv6-подключение.';
+  end;
+procedure Service.IPHelperSvc(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'iphlpsvc';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.SecLog(cb : TCheckBox);
+  begin
+    cb.Caption := 'Вторичный вход в систему';
+    cb.Hint := 'Позволяет запускать процессы от имени другого пользователя.';
+  end;
+procedure Service.SecLog(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'seclogon';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.PrintManager(cb : TCheckBox);
+  begin
+    cb.Caption := 'Диспетчер печати';
+    cb.Hint := 'Если у вас нет принтера.';
+
+  end;
+procedure Service.PrintManager(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'Spooler';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.DowMapManager(cb : TCheckBox);
+  begin
+    cb.Caption := 'Диспетчер скачанных карт';
+    cb.Hint := 'Если вы не используете приложение «Карты»';
+
+  end;
+procedure Service.DowMapManager(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'MapsBroker';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.XboxLiveNet(cb : TCheckBox);
+  begin
+    cb.Caption := 'Сетевая служба Xbox Live';
+    cb.Hint := 'Обеспечивает доступ к сервисам Xbox Live.';
+  end;
+procedure Service.XboxLiveNet(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'XboxNetApiSvc';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.DiagTrackSvc(cb : TCheckBox);
+  begin
+    cb.Caption := 'Служба диагностического отслеживания';
+    cb.Hint := 'Позволяет собирать сведения о функциональных проблемах, связанных с компонентами Windows.';
+  end;
+procedure Service.DiagTrackSvc(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'DiagTrack';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.ProgCompatbltyAssistSvc(cb : TCheckBox);
+  begin
+    cb.Caption := 'Служба помощника по совместимости программ';
+    cb.Hint := 'Обеспечивает поддержку помощника по совместимости программ.';
+  end;
+procedure Service.ProgCompatbltyAssistSvc(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'PcaSvc';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.WinErrLogSvc(cb : TCheckBox);
+  begin
+    cb.Caption := 'Служба регистрации ошибок Windows';
+    cb.Hint := 'Разрешает отправку отчетов об ошибках в случае прекращения работы или зависания программы.';
+  end;
+procedure Service.WinErrLogSvc(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'WerSvc';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.BitLockDrvEncryptSvc(cb : TCheckBox);
+  begin
+    cb.Caption := 'Служба шифрования дисков BitLocker';
+    cb.Hint := 'Позволяет шифровать диски, если вы ею не пользуетесь рекомендую отключить.';
+  end;
+procedure Service.BitLockDrvEncryptSvc(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'BDESVC';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.RemoteReg(cb : TCheckBox);
+  begin
+    cb.Caption := 'Удалённый реестр';
+    cb.Hint := 'Даёт возможность другим пользователям удаленно изменить ваш реестр.';
+  end;
+procedure Service.RemoteReg(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'RemoteRegistry';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.SecurityCenter(cb : TCheckBox);
+  begin
+    cb.Caption := 'Центр обеспечения безопасности';
+    cb.Hint := 'Следит за параметрами работоспособности системы безопасности и протоколирует их.';
+  end;
+procedure Service.SecurityCenter(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'wscsvc';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.Superfetch(cb : TCheckBox);
+  begin
+    cb.Caption := 'Superfetch';
+    cb.Hint := 'Рекомендуется отключить, если используете SSD диск.';
+  end;
+procedure Service.Superfetch(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'SysMain';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.OfflineFiles(cb : TCheckBox);
+  begin
+    cb.Caption := 'Автономные файлы';
+    cb.Hint := 'Сетевой механизм, позволяющий получить доступ к файлам пользователей, '#13'которые подключаются к сети периодически, при отключении сервера, потери связи';
+  end;
+procedure Service.OfflineFiles(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'CscService';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.Server(cb : TCheckBox);
+  begin
+    cb.Caption := 'Сервер';
+    cb.Hint := 'Рекомендуется отключить, если компьютер не используется как сервер';
+  end;
+procedure Service.Server(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'LanmanServer';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.SessionManager(cb : TCheckBox);
+  begin
+    cb.Caption := 'Диспетчер сеансов диспетчера окон рабочего стола';
+    cb.Hint := 'Если не используете тему оформления Aero.';
+  end;
+procedure Service.SessionManager(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'UxSms';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.SecureStorage(cb : TCheckBox);
+  begin
+    cb.Caption := 'Защищённое хранилище';
+    cb.Hint := 'Сохраняет данные авторизации (подобно автоматическому заполнению форм у браузеров.';
+  end;
+procedure Service.SecureStorage(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'ProtectedStorage';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.TabletInputSvc(cb : TCheckBox);
+  begin
+    cb.Caption := 'Служба ввода планшетного пк';
+    cb.Hint := 'Обеспечивает функционирование пера и рукописного ввода на планшетных ПК.';
+  end;
+procedure Service.TabletInputSvc(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'TabletInputService';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.Themes(cb : TCheckBox);
+  begin
+    cb.Caption := 'Темы';
+    cb.Hint := 'Если вы не используете стили оформления Windows 7, то желательно отключить.';
+  end;
+procedure Service.Themes(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'Themes';
+    Svc.switch(way,val);
+  end;
+
+
+procedure RegEdit(way: string; key: string; val: string);
+  var
+    Reg : TRegistry;
+    s : string;
+  begin
+    Reg := TRegistry.Create;
+    s := way;
+    s := Copy(s, 1, Pos('\', s)-1);
+
+    if (s = 'HKEY_CURRENT_USER') then Reg.RootKey := HKEY_CURRENT_USER
+      else
+        if (s = 'HKEY_LOCAL_MACHINE') then Reg.RootKey := HKEY_LOCAL_MACHINE
+          else Exit;
+
+    way := copy(way,length(s)+2,length(way)-1);
+
+    if Reg.OpenKey(way, True) then Reg.WriteString(key, val);
+
+    Reg.CloseKey;
+    Reg.Free;
+  end;
+
+
+procedure ShutDownBoost;
+  begin
+    RegEdit('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control','WaitToKillServiceTimeout','3000');
+  end;
+
+procedure StartBoost;
+  begin
+    RegEdit('HKEY_LOCAL_MACHINE\SYSTEM\ControlSet002\Control','MenuShowDelay','50');
+  end;
+
+procedure move(codekey : integer; n : integer);
+  var
+    i : integer;
+  begin
+    for i:=1 to n do
+      begin
+        keybd_event(codekey, 0, 0, 0);
+        keybd_event(codekey, 0, KEYEVENTF_KEYUP, 0);
+      end;
+    keybd_event(VK_RETURN, 0, 0, 0);
+    keybd_event(VK_RETURN, 0, KEYEVENTF_KEYUP, 0);
+  end;
+
+procedure VE_switch();
+  var
+    Reg: TRegistry;
+    s : integer;
+    one : dword;
+  begin
+    if  not Form1.VE_CB.Checked then Exit;
+
+    Reg := TRegIniFile.Create;
+
+  Reg.RootKey := HKEY_CURRENT_USER;
+   Reg.OpenKey('Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects', False);
+    if not reg.ValueExists('VisualFXSetting') then
+      begin
+        Reg.WriteInteger('VisualFXSetting',0);
+      end;
+    s := reg.ReadInteger('VisualFXSetting');
+    reg.closekey;
+    reg.free;
+
+    if (Form1.offVE_CB.Checked) and (s = 2) then Exit;
+    if (Form1.onVE_CB.Checked) and (s = 1) then Exit;
+
+    ShellExecute(Form1.Handle, 'open','c:\Windows\system32\SystemPropertiesPerformance.exe', nil, nil, SW_SHOWNORMAL);
+        Sleep(1000);
+    if Form1.offVE_CB.Checked
+      then
+        case s of
+          0: move(40,2);
+          1: move(40,1);
+          3: move(38,1);
+        end
+      else
+        case s of
+          0: move(40,1);
+          2: move(38,1);
+          3: move(38,2);
+        end;
+  end;
+
+ end.

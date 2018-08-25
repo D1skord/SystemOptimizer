@@ -1,0 +1,22 @@
+unit Unit2;
+  interface
+
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ShellApi, StdCtrls, Registry, jpeg, ExtCtrls, Buttons, ComCtrls, Masks,
+  Vcl.Menus, GifImg, IOUtils, MATH, Vcl.CheckLst, Vcl.Imaging.pngimage;
+
+   procedure test();
+
+
+implementation
+
+
+ procedure test();
+ begin
+  ShowMessage('Hello World');
+ end;
+
+
+ end.

@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899/12/30 00:00:00.000.813,D:\YandexDisk\Bibliotechka 2k\SEMESTER_4\practicnew LastLast\Unit2.pas=D:\YandexDisk\Bibliotechka 2k\SEMESTER_4\practicnew LastLast\Clearing.pas</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.379,=D:\YandexDisk\Bibliotechka 2k\SEMESTER_4\practicnew LastLast\Unit2.pas</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.674,=D:\YandexDisk\Bibliotechka 2k\SEMESTER_4\practicnew LastLast\Unit2.pas</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.050,D:\YandexDisk\Bibliotechka 2k\SEMESTER_4\practicnew LastLast\Unit2.pas=D:\YandexDisk\Bibliotechka 2k\SEMESTER_4\practicnew LastLast\Optimization.pas</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.329,C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas=C:\Users\Admin\Desktop\practic\Unit1.pas</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.889,=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.541,=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.392,D:\YandexDisk\2k\SEMESTER_4\practicnew LastLast\SystemOptimizer.dproj=D:\YandexDisk\2k\SEMESTER_4\practicnew LastLast\SystemOptimizer.dproj</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.935,D:\YandexDisk\Bibliotechka 2k\SEMESTER_4\practicnew LastLast\Unit1.pas=D:\YandexDisk\Bibliotechka 2k\SEMESTER_4\practicnew LastLast\Form.pas</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.329,C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.dfm=C:\Users\Admin\Desktop\practic\Unit1.dfm</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.841,D:\YandexDisk\2k\SEMESTER_4\practicnew LastLast\System Optimizer.dproj=D:\YandexDisk\2k\SEMESTER_4\practicnew LastLast\Project1.dproj</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.935,D:\YandexDisk\Bibliotechka 2k\SEMESTER_4\practicnew LastLast\Unit1.dfm=D:\YandexDisk\Bibliotechka 2k\SEMESTER_4\practicnew LastLast\Form.dfm</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.282,C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Project1.dproj=C:\Users\Admin\Desktop\practic\Project1.dproj</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.508,D:\YandexDisk\2k\SEMESTER_4\practicnew LastLast\System Optimizer.dproj=D:\YandexDisk\2k\SEMESTER_4\practicnew LastLast\SystemOptimizer.dproj</Transaction>
+  </Transactions>
+	<ProjectSortOrder AutoSort="0" SortType="0">
+    <File Path="Form.pas"/>
+    <File Path="Form.dfm"/>
+    <File Path="Optimization.pas"/>
+    <File Path="Clearing.pas"/>
+  </ProjectSortOrder>
+</BorlandProject>

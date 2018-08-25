@@ -1,0 +1,446 @@
+unit Form;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ShellApi, StdCtrls, Registry, jpeg, ExtCtrls, Buttons, ComCtrls, Masks,
+  Vcl.Menus, GifImg, IOUtils, MATH, Vcl.CheckLst, Vcl.Imaging.pngimage, Clearing, Optimization;
+
+type
+  TForm1 = class(TForm)
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    TmpFilesCB: TCheckBox;
+    RecycleBinCB: TCheckBox;
+    DownloadsCB: TCheckBox;
+    CacheCB: TCheckBox;
+    MainScrollBox: TScrollBox;
+    offVE_CB: TCheckBox;
+    onVE_CB: TCheckBox;
+    VE_CB: TCheckBox;
+    Image1: TImage;
+    CB1: TCheckBox;
+    CB5: TCheckBox;
+    CB3: TCheckBox;
+    CB4: TCheckBox;
+    CB2: TCheckBox;
+    CB6: TCheckBox;
+    CB7: TCheckBox;
+    CB8: TCheckBox;
+    CB9: TCheckBox;
+    CB10: TCheckBox;
+    CB11: TCheckBox;
+    CB12: TCheckBox;
+    CB13: TCheckBox;
+    CB14: TCheckBox;
+    CB15: TCheckBox;
+    ServiceCB: TCheckBox;
+    VE_icon: TImage;
+    ScrollBox1: TScrollBox;
+    TempFiles_icon: TImage;
+    Download_icon: TImage;
+    RecycleBin_icon: TImage;
+    mosaic_icon: TImage;
+    Start_CB: TCheckBox;
+    Start_icon: TImage;
+    ProcessLabel: TLabel;
+    Shutdown_icon: TImage;
+    BS_CB: TCheckBox;
+    Apply: TSpeedButton;
+    ClearBtn: TSpeedButton;
+    SpeedButton1: TSpeedButton;
+    Image2: TImage;
+    DumpCB: TCheckBox;
+    Image3: TImage;
+    Label1: TLabel;
+    ProgressLabel2: TLabel;
+
+procedure onVE_CBClick(Sender: TObject);
+procedure FormCreate(Sender: TObject);
+procedure MainScrollBoxMouseWheel(Sender: TObject; Shift: TShiftState;
+WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+procedure ServiceCBClick(Sender: TObject);
+procedure VE_CBClick(Sender: TObject);
+procedure offVE_CBClick(Sender: TObject);
+procedure ExitBtnClick(Sender: TObject);
+procedure ApplyClick(Sender: TObject);
+procedure ClearBtnClick(Sender: TObject);
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+implementation
+
+{$R *.dfm}
+
+procedure resize_img();
+  var
+    img: TImage;
+    i : integer;
+    t: TBitmap;
+    h: THandle;
+    scale: double;
+    nx : integer;
+    ny : integer;
+  begin
+    i := 0;
+    nx := 31; ny := 31;
+    for i:=1 to  Form1.ComponentCount - 1 do
+      if (Form1.Components[i] is TImage) then
+        begin
+
+
+          img := (Form1.Components[i] as TImage);
+            if img.Proportional then
+              begin
+                scale:=max(img.Height/ny, img.Width/nx);
+                  if scale<1 then scale:=1;
+                    nx:=trunc(img.Width/scale);
+                    ny:=trunc(img.Height/scale);
+              end;
+          t:=TBitmap.Create;
+          t.Assign(img.Picture.Graphic);
+          t.PixelFormat:=pf24bit;
+          h:=t.Canvas.Handle;
+          SetStretchBltMode(h, HALFTONE);
+          StretchBlt(h, 0,0,nx,ny, h, 0,0,t.Width,t.Height, SRCCOPY);
+          t.Width:=nx;
+          t.Height:=ny;
+          img.Picture.Assign(t);
+          t.Free;
+        end;
+  end;
+
+procedure HideCB();
+  begin
+    Application.HintHidePause := 100000;
+    Form1.TmpFilesCB.Hint := 'Это файлы, создаваемые определённой программой или операционной системой'#13'для сохранения промежуточных результатов в процессе функционирования'#13'или передачи данных в другую программу.';
+    Form1.CacheCB.Hint := 'Это специально выделенное место памяти на жёстком диске,'#13'где хранятся копии предварительно посещённых страниц, картинок,'#13'и других необходимых для просмотра интернет-страниц файлов.';
+    Form1.DumpCB.Hint := 'Файлы, которые, как правило, создаётся при различных сбоях'#13'в программном обеспечении (например, в операционной системе),';
+    Form1.RecycleBinCB.Hint := 'Элемент графического интерфейса пользователя, предназначенный для удаления и,'#13'часто, временного хранения удалённых объектов';
+    Form1.DownloadsCB.Hint := 'Эта папка установлена по умолчанию для сохранения файлов с Веб браузера.';
+  end;
+
+function OSVersion() : integer;
+  var Reg: TRegistry;
+  s : string;
+ begin
+  Reg := TRegIniFile.Create;
+
+  Reg.RootKey := HKEY_LOCAL_MACHINE;
+  Reg.OpenKey('SOFTWARE\Microsoft\Windows NT\CurrentVersion', false);
+    s := reg.ReadString('ProductName');
+    Delete(s, 11, Length(s));
+    if (s =  'Windows 10') then result := 1
+      else if (s =  'Windows 8 ') then result := 2
+        else if (s =  'Windows 8.') then result := 2
+          else if (s =  'Windows 7 ') then result := 3
+            else result := 0;
+  Reg.CloseKey;
+  HideCB;
+  end;
+
+procedure FormDestroy;
+  begin
+    ShowMessage('Программа несовместима с данной версией Windows');
+    Application.Terminate;
+  end;
+
+procedure SetServiceWin10();
+  var
+    svc : service;
+  begin
+    Application.HintHidePause := 100000;
+    Svc.BiomWinSvc(Form1.CB1);
+      Form1.CB1.Checked := True;
+    Svc.Firewall(Form1.CB2);
+      Form1.CB2.Checked := False;
+    Svc.IPHelperSvc(Form1.CB3);
+    Svc.PrintManager(Form1.CB4);
+      Form1.CB4.Checked := False;
+    Svc.DowMapManager(Form1.CB5);
+    Svc.XboxLiveNet(Form1.CB6);
+    Svc.DiagTrackSvc(Form1.CB7);
+    Svc.ProgCompatbltyAssistSvc(Form1.CB8);
+    Svc.WinErrLogSvc(Form1.CB9);
+    Svc.BitLockDrvEncryptSvc(Form1.CB10);
+    Svc.RemoteReg(Form1.CB11);
+    Svc.SecurityCenter(Form1.CB12);
+    Svc.Superfetch(Form1.CB13);
+      Form1.CB13.Checked := False;
+      Form1.CB14.Destroy;
+      Form1.CB15.Destroy;
+      Form1.MainScrollBox.VertScrollBar.Range := 700;
+end;
+
+procedure SetServiceWin8();
+  var
+    svc : service;
+  begin
+    Application.HintHidePause := 100000;
+    Svc.OfflineFiles(Form1.CB1);
+    Svc.Firewall(Form1.CB2);
+      Form1.CB2.Checked := False;
+    Svc.IPHelperSvc(Form1.CB3);
+    Svc.SecLog(Form1.CB4);
+    Svc.PrintManager(Form1.CB5);
+      Form1.CB5.Checked := False;
+    Svc.Server(Form1.CB6);
+    Svc.ProgCompatbltyAssistSvc(Form1.CB7);
+    Svc.WinErrLogSvc(Form1.CB8);
+    Svc.RemoteReg(Form1.CB9);
+    Svc.SecurityCenter(Form1.CB10);
+
+      Form1.CB11.Destroy;
+      Form1.CB12.Destroy;
+      Form1.CB13.Destroy;
+      Form1.CB14.Destroy;
+      Form1.CB15.Destroy;
+      Form1.MainScrollBox.VertScrollBar.Range := 510;
+end;
+
+procedure SetServiceWin7();
+  var
+    svc : service;
+  begin
+    Application.HintHidePause := 100000;
+    Svc.OfflineFiles(Form1.CB1);
+    Svc.IPHelperSvc(Form1.CB2);
+    Svc.SecLog(Form1.CB3);
+    Svc.PrintManager(Form1.CB4);
+      Form1.CB4.Checked := False;
+    Svc.SessionManager(Form1.CB5);
+    Svc.SecureStorage(Form1.CB6);
+    Svc.Server(Form1.CB7);
+    Svc.TabletInputSvc(Form1.CB8);
+    Svc.WinErrLogSvc(Form1.CB9);
+    Svc.RemoteReg(Form1.CB10);
+    Svc.Themes(Form1.CB11);
+    Svc.SecurityCenter(Form1.CB12);
+      Form1.CB13.Destroy;
+      Form1.CB14.Destroy;
+      Form1.CB15.Destroy;
+      Form1.MainScrollBox.VertScrollBar.Range := 580;
+end;
+
+procedure TForm1.ExitBtnClick(Sender: TObject);
+  begin
+    Form1.Close
+  end;
+
+procedure TForm1.FormCreate(Sender: TObject);
+  var
+    os : integer;
+  begin
+     resize_img();
+    os := OSVersion();
+
+    case os of
+      1 : SetServiceWin10;
+      2 : SetServiceWin8;
+      3 : SetServiceWin7;
+      0 : FormDestroy;
+    end;
+  end;
+
+
+ procedure CB_Win10();
+  var
+    Svc : Service;
+  begin
+    if Form1.CB1.Checked then Svc.BiomWinSvc(0)
+      else Svc.BiomWinSvc(1);
+    if Form1.CB2.Checked then Svc.Firewall(0)
+      else Svc.Firewall(1);
+    if Form1.CB3.Checked then Svc.IPHelperSvc(0)
+      else Svc.IPHelperSvc(1);
+    if Form1.CB4.Checked then Svc.PrintManager(0)
+      else Svc.PrintManager(1);
+    if Form1.CB5.Checked then Svc.DowMapManager(0)
+      else Svc.DowMapManager(1);
+    if Form1.CB6.Checked then Svc.XboxLiveNet(0)
+      else Svc.XboxLiveNet(1);
+    if Form1.CB7.Checked then Svc.DiagTrackSvc(0)
+      else Svc.DiagTrackSvc(1);
+    if Form1.CB8.Checked then Svc.ProgCompatbltyAssistSvc(0)
+      else Svc.ProgCompatbltyAssistSvc(1);
+    if Form1.CB9.Checked then Svc.WinErrLogSvc(0)
+      else Svc.WinErrLogSvc(1);
+    if Form1.CB10.Checked then Svc.BitLockDrvEncryptSvc(0)
+      else Svc.BitLockDrvEncryptSvc(1);
+    if Form1.CB11.Checked then Svc.RemoteReg(0)
+      else Svc.RemoteReg(1);
+    if Form1.CB12.Checked then Svc.SecurityCenter(0)
+      else Svc.SecurityCenter(1);
+    if Form1.CB13.Checked then Svc.Superfetch(0)
+      else Svc.Superfetch(1);
+  end;
+
+ procedure CB_Win8();
+  var
+    Svc : Service;
+  begin
+    if Form1.CB1.Checked then Svc.OfflineFiles(0)
+      else Svc.OfflineFiles(1);
+    if Form1.CB2.Checked then Svc.Firewall(0)
+      else Svc.Firewall(1);
+    if Form1.CB3.Checked then Svc.IPHelperSvc(0)
+      else Svc.IPHelperSvc(1);
+    if Form1.CB4.Checked then Svc.SecLog(0)
+      else Svc.SecLog(1);
+    if Form1.CB5.Checked then Svc.PrintManager(0)
+      else Svc.PrintManager(1);
+    if Form1.CB6.Checked then Svc.Server(0)
+      else Svc.Server(1);
+    if Form1.CB7.Checked then Svc.ProgCompatbltyAssistSvc(0)
+      else Svc.ProgCompatbltyAssistSvc(1);
+    if Form1.CB8.Checked then Svc.WinErrLogSvc(0)
+      else Svc.WinErrLogSvc(1);
+    if Form1.CB9.Checked then Svc.RemoteReg(0)
+      else Svc.RemoteReg(1);
+    if Form1.CB10.Checked then Svc.SecurityCenter(0)
+      else Svc.SecurityCenter(1);
+  end;
+
+ procedure CB_Win7();
+  var
+    Svc : Service;
+  begin
+    if Form1.CB1.Checked then Svc.OfflineFiles(0)
+      else Svc.OfflineFiles(1);
+    if Form1.CB2.Checked then Svc.IPHelperSvc(0)
+      else Svc.IPHelperSvc(1);
+    if Form1.CB3.Checked then Svc.SecLog(0)
+      else Svc.SecLog(1);
+    if Form1.CB4.Checked then Svc.PrintManager(0)
+      else Svc.PrintManager(1);
+    if Form1.CB5.Checked then Svc.SessionManager(0)
+      else Svc.SessionManager(1);
+    if Form1.CB6.Checked then Svc.SecureStorage(0)
+      else Svc.SecureStorage(1);
+    if Form1.CB7.Checked then Svc.Server(0)
+      else Svc.Server(1);
+    if Form1.CB8.Checked then Svc.TabletInputSvc(0)
+      else Svc.TabletInputSvc(1);
+    if Form1.CB9.Checked then Svc.WinErrLogSvc(0)
+      else Svc.WinErrLogSvc(1);
+    if Form1.CB10.Checked then Svc.RemoteReg(0)
+      else Svc.RemoteReg(1);
+    if Form1.CB11.Checked then Svc.Themes(0)
+      else Svc.Themes(1);
+    if Form1.CB12.Checked then Svc.SecurityCenter(0)
+      else Svc.SecurityCenter(1);
+  end;
+
+
+
+procedure TForm1.ServiceCBClick(Sender: TObject);
+  var
+    i : integer;
+    s : string;
+  begin
+    i := 0;
+      begin
+        for i:=1 to  ComponentCount - 1 do
+          if (Components[i] is TCheckBox) then
+            begin
+              s := (Components[i] as TCheckBox).Name;
+              Delete(s, 3, Length(s));
+              if s = 'CB' then
+                begin
+                  if ServiceCB.Checked then (Components[i] as TCheckBox).Enabled := True
+                    else (Components[i] as TCheckBox).Enabled := False;
+                end;
+            end;
+      end;
+  end;
+
+procedure TForm1.VE_CBClick(Sender: TObject);
+  begin
+    if VE_CB.Checked then
+      begin
+        onVE_CB.Enabled := True;
+        offVE_CB.Enabled := True;
+      end
+    else
+      begin
+        onVE_CB.Enabled := False;
+        offVE_CB.Enabled := False;
+      end;
+  end;
+
+procedure TForm1.onVE_CBClick(Sender: TObject);
+  begin
+    if onVE_CB.Checked then offVE_CB.Checked := False
+      else if (not offVE_CB.Checked) and (not onVE_CB.Checked) then
+      begin
+        VE_CB.Checked := False;
+        offVE_CB.Checked := True;
+      end;
+  end;
+
+procedure TForm1.offVE_CBClick(Sender: TObject);
+  begin
+    if offVE_CB.Checked then onVE_CB.Checked := False
+      else if (not offVE_CB.Checked) and (not onVE_CB.Checked) then
+         begin
+        VE_CB.Checked := False;
+        offVE_CB.Checked := True;
+      end;
+  end;
+
+procedure TForm1.MainScrollBoxMouseWheel(Sender: TObject; Shift: TShiftState;
+  WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+  begin
+    if (WheelDelta > 0)
+      then  MainScrollBox.VertScrollBar.Position:= MainScrollBox.VertScrollBar.Position-12
+        else
+          MainScrollBox.VertScrollBar.Position:= MainScrollBox.VertScrollBar.Position+12;
+  end;
+
+
+
+procedure TForm1.ApplyClick(Sender: TObject);
+  begin
+    if (Form1.Start_CB.Checked = True) then StartBoost();
+    if (Form1.BS_CB.Checked = True) then ShutDownBoost();
+    VE_switch();
+    if (OSVersion() = 1) then CB_Win10()
+      else
+        if (OSVersion() = 2) then CB_Win8()
+          else
+            if (OSVersion() = 3) then CB_Win7();
+    Form1.ProgressLabel2.Caption := 'Готово!';
+ end;
+
+procedure TForm1.ClearBtnClick(Sender: TObject);
+  var
+    tmp : real;
+  begin
+    ProcessLabel.Caption := 'Подождите . . .';
+    tmp := FreeDisk;
+
+    if (CacheCB.Checked = True)
+      then CleanBrowsCache();
+    if (TmpFilesCB.Checked = True)
+      then CleanTempFiles();
+    if (DownloadsCB.Checked = True)
+      then CleanDownloads();
+    if (RecycleBinCB.Checked = True)
+      then EmptyRecycleBin();
+    if (DumpCB.Checked = True)
+      then CleanDump();
+
+    ProcessLabel.Caption := ' ';
+    ProcessLabel.Caption := 'Было удалено: ' + FloatToStr (roundto((FreeDisk - tmp), -2)) + ' Мбайт' ;
+end;
+
+end.
+

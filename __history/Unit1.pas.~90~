@@ -1,0 +1,1162 @@
+                  unit Unit1;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ShellApi, StdCtrls, Registry, jpeg, ExtCtrls, Buttons, ComCtrls, Masks,
+  Vcl.Menus, GifImg, IOUtils, MATH, Vcl.CheckLst, Vcl.Imaging.pngimage;
+
+
+type
+  TForm1 = class(TForm)
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    TmpFilesCB: TCheckBox;
+    RecycleBinCB: TCheckBox;
+    DownloadsCB: TCheckBox;
+    CacheCB: TCheckBox;
+    MainScrollBox: TScrollBox;
+    offVE_CB: TCheckBox;
+    onVE_CB: TCheckBox;
+    VE_CB: TCheckBox;
+    Image1: TImage;
+    CB1: TCheckBox;
+    CB5: TCheckBox;
+    CB3: TCheckBox;
+    CB4: TCheckBox;
+    CB2: TCheckBox;
+    CB6: TCheckBox;
+    CB7: TCheckBox;
+    CB8: TCheckBox;
+    CB9: TCheckBox;
+    CB10: TCheckBox;
+    CB11: TCheckBox;
+    CB12: TCheckBox;
+    CB13: TCheckBox;
+    CB14: TCheckBox;
+    CB15: TCheckBox;
+    ServiceCB: TCheckBox;
+    VE_icon: TImage;
+    ScrollBox1: TScrollBox;
+    TempFiles_icon: TImage;
+    Download_icon: TImage;
+    RecycleBin_icon: TImage;
+    mosaic_icon: TImage;
+    Start_CB: TCheckBox;
+    Start_icon: TImage;
+    ProcessLabel: TLabel;
+    Shutdown_icon: TImage;
+    CheckBox1: TCheckBox;
+    Apply: TSpeedButton;
+    ClearBtn: TSpeedButton;
+    SpeedButton1: TSpeedButton;
+
+
+
+
+
+    procedure SpeedButton4wwwwClick(Sender: TObject);
+
+    procedure onVE_CBClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure MainScrollBoxMouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+    procedure ServiceCBClick(Sender: TObject);
+    procedure VE_CBClick(Sender: TObject);
+    procedure offVE_CBClick(Sender: TObject);
+    procedure ExitBtnClick(Sender: TObject);
+    procedure ApplyClick(Sender: TObject);
+    procedure ClearBtnClick(Sender: TObject);
+
+
+
+
+
+
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+  Service = class(TObject)
+
+    const w = 'SYSTEM\CurrentControlSet\Services\';
+  private
+    procedure switch(way : string; val : integer);
+  public
+
+
+    procedure OfflineFiles(val : integer);overload;//Автономные файлы
+    procedure OfflineFiles(cb : TCheckBox);overload;
+
+    procedure BiomWinSvc(val : integer);overload;//Биометрическая служба Windows
+    procedure BiomWinSvc(cb : TCheckBox);overload;
+
+    procedure Firewall(val : integer);overload;//Брендмауэр
+    procedure Firewall(cb : TCheckBox);overload;
+
+    procedure IPHelperSvc(val : integer);overload;//Вспомогательная служба IP
+    procedure IPHelperSvc(cb : TCheckBox);overload;
+
+    procedure PrintManager(val : integer);overload;//Диспетчер печати
+    procedure PrintManager(cb : TCheckBox);overload;
+
+    procedure SessionManager(val : integer);overload;//Диспетчер сеансов диспетчера окон рабочего стола
+    procedure SessionManager(cb : TCheckBox);overload;
+
+    procedure DowMapManager(val : integer);overload;//Диспетчер скачанных карт
+    procedure DowMapManager(cb : TCheckBox);overload;
+
+    procedure SecureStorage(val : integer);overload;//Защищённое хранилище
+    procedure SecureStorage(cb : TCheckBox);overload;
+
+    procedure Server(val : integer);overload;//Сервер
+    procedure Server(cb : TCheckBox);overload;
+
+    procedure XboxLiveNet(val : integer);overload;//Сетевая служба Xbox Live
+    procedure XboxLiveNet(cb : TCheckBox);overload;
+
+    procedure TabletInputSvc(val : integer);overload;//Служба ввода планшетного пк
+    procedure TabletInputSvc(cb : TCheckBox);overload;
+
+    procedure DiagTrackSvc(val : integer);overload;//Служба диогнастического отслеживания
+    procedure DiagTrackSvc(cb : TCheckBox);overload;
+
+    //procedure WinDefSvc(val : integer);overload;//Служба защитника Windows
+   // procedure WinDefSvc(cb : TCheckBox);overload;
+
+    //procedure DiagPolicySvc(val : integer);overload;//Служба политики диагностики
+   // procedure DiagPolicySvc(cb : TCheckBox);overload;
+
+    procedure ProgCompatbltyAssistSvc(val : integer);overload;//Служба помощника по совместимости программ
+    procedure ProgCompatbltyAssistSvc(cb : TCheckBox);overload;
+
+    procedure WinErrLogSvc(val : integer);overload;//Служба регистрации ошибок виндовс
+    procedure WinErrLogSvc(cb : TCheckBox);overload;
+
+    procedure BitLockDrvEncryptSvc(val : integer);overload;//Служба шифрования дисков BitLocker
+    procedure BitLockDrvEncryptSvc(cb : TCheckBox);overload;
+
+    procedure Themes(val : integer);overload;//Темы
+    procedure Themes(cb : TCheckBox);overload;
+
+    procedure RemoteReg(val : integer);overload;//Удаленный реестр
+    procedure RemoteReg(cb : TCheckBox);overload;
+
+    procedure SecurityCenter(val : integer);overload;//Центр обеспечения безопасности
+    procedure SecurityCenter(cb : TCheckBox);overload;
+
+    procedure Superfetch(val : integer);overload;//Superfetch
+    procedure Superfetch(cb : TCheckBox);overload;
+
+
+
+
+
+
+end;
+
+
+var
+  Form1: TForm1;
+implementation
+
+{$R *.dfm}
+
+
+procedure Service.switch(way: string; val : integer);
+  var
+    Reg: TRegistry;
+  begin
+  Reg := TRegistry.Create;
+  Reg.RootKey := HKEY_LOCAL_MACHINE;
+    if val=0
+      then
+        begin
+          Reg.OpenKey(way, false);
+          Reg.WriteInteger('Start', 4);
+        end
+      else
+        begin
+          Reg.OpenKey(way, false);
+          Reg.WriteInteger('Start', 2);
+        end;
+        Reg.CloseKey;
+        Reg.Free;
+  end;
+
+procedure Service.BiomWinSvc(cb: TCheckBox);
+  begin
+    cb.Caption := 'Биометрическая служба Windows';
+    cb.Hint := 'Сбор, обработка и хранение биометрических данных.';
+  end;
+procedure Service.BiomWinSvc(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := 'SYSTEM\CurrentControlSet\Services\WbioSrvc';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.Firewall(cb : TCheckBox);
+  begin
+    cb.Caption := 'Брандмауэр';
+    cb.Hint := 'Если вы используете сторонний антивирус, а не брандмауэр Windows, то данная служба не актуальна';
+  end;
+procedure Service.Firewall(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'MpsSvc';
+    Svc.switch(way,val);
+  end;
+
+
+procedure Service.IPHelperSvc(cb : TCheckBox);
+  begin
+    cb.Caption := 'Вспомогательная служба IP';
+    cb.Hint := 'Если вы не используете IPv6-подключение.';
+  end;
+procedure Service.IPHelperSvc(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'iphlpsvc';
+    Svc.switch(way,val);
+  end;
+
+
+procedure Service.PrintManager(cb : TCheckBox);
+  begin
+    cb.Caption := 'Диспетчер печати';
+    cb.Hint := 'Если у вас нет принтера.';
+
+  end;
+procedure Service.PrintManager(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'Spooler';
+    Svc.switch(way,val);
+  end;
+
+
+procedure Service.DowMapManager(cb : TCheckBox);
+  begin
+    cb.Caption := 'Диспетчер скачанных карт';
+    cb.Hint := 'Если вы не используете приложение «Карты»';
+
+  end;
+procedure Service.DowMapManager(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'MapsBroker';
+    Svc.switch(way,val);
+  end;
+
+
+procedure Service.XboxLiveNet(cb : TCheckBox);
+  begin
+    cb.Caption := 'Сетевая служба Xbox Live';
+    cb.Hint := 'Обеспечивает доступ к сервисам Xbox Live.';
+  end;
+procedure Service.XboxLiveNet(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'XboxNetApiSvc';
+    Svc.switch(way,val);
+  end;
+
+
+procedure Service.DiagTrackSvc(cb : TCheckBox);
+  begin
+    cb.Caption := 'Служба диагностического отслеживания';
+    cb.Hint := 'Позволяет собирать сведения о функциональных проблемах, связанных с компонентами Windows.';
+  end;
+procedure Service.DiagTrackSvc(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'DiagTrack';
+    Svc.switch(way,val);
+  end;
+
+
+
+
+
+procedure Service.ProgCompatbltyAssistSvc(cb : TCheckBox);
+  begin
+    cb.Caption := 'Служба помощника по совместимости программ';
+    cb.Hint := 'Обеспечивает поддержку помощника по совместимости программ.';
+  end;
+procedure Service.ProgCompatbltyAssistSvc(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'PcaSvc';
+    Svc.switch(way,val);
+  end;
+
+
+procedure Service.WinErrLogSvc(cb : TCheckBox);
+  begin
+    cb.Caption := 'Служба регистрации ошибок Windows';
+    cb.Hint := 'Разрешает отправку отчетов об ошибках в случае прекращения работы или зависания программы.';
+  end;
+procedure Service.WinErrLogSvc(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'WerSvc';
+    Svc.switch(way,val);
+  end;
+
+
+procedure Service.BitLockDrvEncryptSvc(cb : TCheckBox);
+  begin
+    cb.Caption := 'Служба шифрования дисков BitLocker';
+    cb.Hint := 'Позволяет шифровать диски, если вы ею не пользуетесь рекомендую отключить.';
+  end;
+procedure Service.BitLockDrvEncryptSvc(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'BDESVC';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.RemoteReg(cb : TCheckBox);
+  begin
+    cb.Caption := 'Удалённый реестр';
+    cb.Hint := 'Даёт возможность другим пользователям удаленно изменить ваш реестр.';
+  end;
+procedure Service.RemoteReg(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'RemoteRegistry';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.SecurityCenter(cb : TCheckBox);
+  begin
+    cb.Caption := 'Центр обеспечения безопасности';
+    cb.Hint := 'Следит за параметрами работоспособности системы безопасности и протоколирует их.';
+  end;
+procedure Service.SecurityCenter(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'wscsvc';
+    Svc.switch(way,val);
+  end;
+
+
+procedure Service.Superfetch(cb : TCheckBox);
+  begin
+    cb.Caption := 'Superfetch';
+    cb.Hint := 'Рекомендуется отключить, если используете SSD диск.';
+  end;
+procedure Service.Superfetch(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'SysMain';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.OfflineFiles(cb : TCheckBox);
+  begin
+    cb.Caption := 'Superfetch';
+    cb.Hint := 'Рекомендуется отключить, если используете SSD диск.';
+  end;
+procedure Service.OfflineFiles(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'CscService';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.Server(cb : TCheckBox);
+  begin
+    cb.Caption := 'Сервер';
+    cb.Hint := 'Рекомендуется отключить, если компьютер не используется как сервер';
+  end;
+procedure Service.Server(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'LanmanServer';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.SessionManager(cb : TCheckBox);
+  begin
+    cb.Caption := 'Диспетчер сеансов диспетчера окон рабочего стола';
+    cb.Hint := 'Если не используете тему оформления Aero.';
+  end;
+procedure Service.SessionManager(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'UxSms';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.SecureStorage(cb : TCheckBox);
+  begin
+    cb.Caption := 'Защищённое хранилище';
+    cb.Hint := 'Сохраняет данные авторизации (подобно автоматическому заполнению форм у браузеров.';
+  end;
+procedure Service.SecureStorage(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'ProtectedStorage';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.TabletInputSvc(cb : TCheckBox);
+  begin
+    cb.Caption := 'Служба ввода планшетного пк';
+    cb.Hint := 'Обеспечивает функционирование пера и рукописного ввода на планшетных ПК.';
+  end;
+procedure Service.TabletInputSvc(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'TabletInputService';
+    Svc.switch(way,val);
+  end;
+
+procedure Service.Themes(cb : TCheckBox);
+  begin
+    cb.Caption := 'Темы';
+    cb.Hint := 'Если вы не используете стили оформления Windows 7, то желательно отключить.';
+  end;
+procedure Service.Themes(val : integer);
+  var
+    Svc : Service;
+    way : string;
+  begin
+    way := w + 'Themes';
+    Svc.switch(way,val);
+  end;
+
+
+
+procedure resize_img();
+  var
+    img: TImage;
+    i : integer;
+    t: TBitmap;
+    h: THandle;
+    scale: double;
+    nx : integer;
+    ny : integer;
+  begin
+    i := 0;
+    nx := 31; ny := 31;
+    for i:=1 to  Form1.ComponentCount - 1 do
+      if (Form1.Components[i] is TImage) then
+        begin
+
+
+          img := (Form1.Components[i] as TImage);
+            if img.Proportional then
+              begin
+                scale:=max(img.Height/ny, img.Width/nx);
+                  if scale<1 then scale:=1;
+                    nx:=trunc(img.Width/scale);
+                    ny:=trunc(img.Height/scale);
+              end;
+          t:=TBitmap.Create;
+          t.Assign(img.Picture.Graphic);
+          t.PixelFormat:=pf24bit;
+          h:=t.Canvas.Handle;
+          SetStretchBltMode(h, HALFTONE);
+          StretchBlt(h, 0,0,nx,ny, h, 0,0,t.Width,t.Height, SRCCOPY);
+          t.Width:=nx;
+          t.Height:=ny;
+          img.Picture.Assign(t);
+          t.Free;
+        end;
+  end;
+
+
+
+function OSVersion() : integer;
+  var Reg: TRegistry;
+  s : string;
+ begin
+  Reg := TRegIniFile.Create;
+
+  Reg.RootKey := HKEY_LOCAL_MACHINE;
+  Reg.OpenKey('SOFTWARE\Microsoft\Windows NT\CurrentVersion', false);
+    s := reg.ReadString('ProductName');
+    Delete(s, 11, Length(s));
+    if (s =  'Windows 10') then result := 1
+      else
+        if (s =  'Windows 8 ') then result := 2
+          else
+            if (s =  'Windows 8.') then result := 2
+              else
+                if (s =  'Windows 7 ') then result := 3
+                  else
+                      result := 0;
+
+    Reg.CloseKey;
+
+  end;
+
+
+
+
+procedure SetServiceWin10();
+  var
+    svc : service;
+  begin
+    Application.HintHidePause := 100000;
+
+    Svc.BiomWinSvc(Form1.CB1);
+    Form1.CB1.Checked := True;
+                                                    //Form1.CB1.Enabled := False;
+    Svc.Firewall(Form1.CB2);
+
+    Svc.IPHelperSvc(Form1.CB3);
+    Form1.CB3.Checked := True;
+
+    Svc.PrintManager(Form1.CB4);
+
+    Svc.DowMapManager(Form1.CB5);
+    Form1.CB5.Checked := True;
+
+    Svc.XboxLiveNet(Form1.CB6);
+    Form1.CB6.Checked := True;
+
+    Svc.DiagTrackSvc(Form1.CB7);
+    Form1.CB7.Checked := True;
+
+    Svc.ProgCompatbltyAssistSvc(Form1.CB8);
+    Form1.CB8.Checked := True;
+
+    Svc.WinErrLogSvc(Form1.CB9);
+    Form1.CB9.Checked := True;
+
+    Svc.BitLockDrvEncryptSvc(Form1.CB10);
+    Form1.CB10.Checked := True;
+
+    Svc.RemoteReg(Form1.CB11);
+    Form1.CB11.Checked := True;
+
+    Svc.SecurityCenter(Form1.CB12);
+    Form1.CB12.Checked := True;
+
+    Svc.Superfetch(Form1.CB13);
+    Form1.CB13.Checked := True;
+
+    Form1.CB14.Destroy;
+    Form1.CB15.Destroy;
+
+    Form1.MainScrollBox.VertScrollBar.Range := 700;
+
+
+end;
+
+procedure SetServiceWin8();
+  var
+    svc : service;
+  begin
+    Application.HintHidePause := 100000;
+
+    Svc.OfflineFiles(Form1.CB1);
+    Svc.Firewall(Form1.CB2);
+    Svc.IPHelperSvc(Form1.CB3);
+    Svc.PrintManager(Form1.CB4);
+    Svc.Server(Form1.CB5);
+    Svc.ProgCompatbltyAssistSvc(Form1.CB6);
+    Svc.WinErrLogSvc(Form1.CB7);
+    Svc.SecurityCenter(Form1.CB8);
+end;
+
+
+procedure SetServiceWin7();
+  var
+    svc : service;
+  begin
+    Application.HintHidePause := 100000;
+
+    Svc.OfflineFiles(Form1.CB1);
+    Svc.IPHelperSvc(Form1.CB2);
+    Svc.PrintManager(Form1.CB3);
+    Svc.SessionManager(Form1.CB4);
+    Svc.SecureStorage(Form1.CB5);
+    Svc.Server(Form1.CB6);
+    Svc.TabletInputSvc(Form1.CB7);
+    Svc.WinErrLogSvc(Form1.CB8);
+    Svc.RemoteReg(Form1.CB9);
+    Svc.Themes(Form1.CB10);
+    Svc.SecurityCenter(Form1.CB11);
+
+
+end;
+
+procedure TForm1.ServiceCBClick(Sender: TObject);
+  var
+    i : integer;
+    s : string;
+  begin
+    i := 0;
+
+      begin
+        for i:=1 to  ComponentCount - 1 do
+          if (Components[i] is TCheckBox) then
+            begin
+              s := (Components[i] as TCheckBox).Name;
+              Delete(s, 3, Length(s));
+              if s = 'CB' then
+                begin
+                  if ServiceCB.Checked then (Components[i] as TCheckBox).Enabled := True
+                    else (Components[i] as TCheckBox).Enabled := False;
+                end;
+            end;
+      end;
+  end;
+
+
+
+
+
+
+
+procedure TForm1.ExitBtnClick(Sender: TObject);
+begin
+Form1.Close
+end;
+
+procedure TForm1.FormCreate(Sender: TObject);
+  var
+    os : integer;
+  begin
+     resize_img();
+    os := OSVersion();
+
+    case os of
+      1 : SetServiceWin10;
+      2 : SetServiceWin8;
+      3 : SetServiceWin7;
+    end;
+  end;
+
+
+procedure EmptyRecycleBin;    // http://www.kansoftware.ru/?tid=1510
+ const
+   SHERB_NOCONFIRMATION = $00000001;
+   SHERB_NOPROGRESSUI = $00000002;
+   SHERB_NOSOUND = $00000004;
+ type
+   TSHEmptyRecycleBin = function(Wnd: HWND;
+                                 pszRootPath: PChar;
+                                 dwFlags: DWORD): HRESULT;  stdcall;
+ var
+   SHEmptyRecycleBin: TSHEmptyRecycleBin;
+   LibHandle: THandle;
+ begin  { EmptyRecycleBin }
+   LibHandle := LoadLibrary(PChar('Shell32.dll'));
+   if LibHandle <> 0 then @SHEmptyRecycleBin :=
+       GetProcAddress(LibHandle, 'SHEmptyRecycleBinA')
+   else
+   begin
+     MessageDlg('Failed to load Shell32.dll.', mtError, [mbOK], 0);
+     Exit;
+   end;
+
+   if @SHEmptyRecycleBin <> nil then
+     SHEmptyRecycleBin(Application.Handle,
+                       nil,
+                       SHERB_NOCONFIRMATION or SHERB_NOPROGRESSUI or SHERB_NOSOUND);
+   FreeLibrary(LibHandle); @SHEmptyRecycleBin := nil;
+ end;
+
+procedure move(codekey : integer; n : integer);
+  var
+    i : integer;
+  begin
+    for i:=1 to n do
+      begin
+        keybd_event(codekey, 0, 0, 0);
+        keybd_event(codekey, 0, KEYEVENTF_KEYUP, 0);
+      end;
+    keybd_event(VK_RETURN, 0, 0, 0);
+    keybd_event(VK_RETURN, 0, KEYEVENTF_KEYUP, 0);
+  end;
+
+
+
+
+  procedure ClearFolder(way:string);
+  var
+    iIndex: Integer;
+    SearchRec: TSearchRec;
+    sFileName: string;
+  begin
+    way := way + '\*.*';
+    iIndex := FindFirst(way, faAnyFile, SearchRec);
+      while iIndex = 0 do
+        begin
+          sFileName := ExtractFileDir(way)+'\'+SearchRec.name;
+            if SearchRec.Attr = faDirectory
+              then
+                begin
+                  if (SearchRec.name <> '' ) and (SearchRec.name <> '.') and
+                   (SearchRec.name <> '..')
+                   then TDirectory.Delete(sFileName, True);
+                end
+          else
+            begin
+              if SearchRec.Attr <> faArchive
+                then FileSetAttr(sFileName, faArchive);
+              DeleteFile(sFileName);
+            end;
+          iIndex := FindNext(SearchRec);
+        end;
+    FindClose(SearchRec);
+  end;
+
+
+
+  function DelAll(sDir : string) : Boolean;
+var
+k :integer;
+  iIndex: Integer;
+  SearchRec: TSearchRec;
+  sFileName: string;
+begin
+  Result := False;
+  sDir := sDir + '\*.*';
+  iIndex := FindFirst(sDir, faAnyFile, SearchRec);
+
+  while iIndex = 0 do
+  begin
+    sFileName := ExtractFileDir(sDir)+'\'+SearchRec.name;
+    if SearchRec.Attr = faDirectory then
+    begin
+      if (SearchRec.name <> '' ) and (SearchRec.name <> '.') and
+      (SearchRec.name <> '..') then
+        DelAll(sFileName);
+    end
+    else
+    begin
+      if SearchRec.Attr <> faArchive then
+        FileSetAttr(sFileName, faArchive);
+
+
+      if not DeleteFile(sFileName) then
+        k := 0;
+    end;
+    iIndex := FindNext(SearchRec);
+  end;
+
+  FindClose(SearchRec);
+  RemoveDir(ExtractFileDir(sDir));
+  Result := True;
+end;
+
+
+ function GetUserName():string;
+  var
+    Name: string;
+    UserName: array[0..255] of Char;
+    UserNameSize: DWORD;
+  begin
+    UserNameSize := 255;
+      if Windows.GetUserName(@UserName, UserNameSize)
+        then result := string(UserName)
+      else
+        result := '%UserName%';
+  end;
+
+
+ procedure CleanBrowsCache();
+    //C:\Users\%UserName%\AppData\Roaming
+    //http://www.programmersforum.ru/showthread.php?t=156981
+    //C:\Users\Admin\AppData\Local\Yandex\YandexBrowser\User Data\Default\Cache
+var
+
+s, way, UserName: string;
+
+  var tsr : TSearchRec;
+ begin
+
+  UserName := GetUserName;
+  way := 'C:\Users\' + UserName + '\AppData\Local\';
+
+  //Yandex Browser
+  s := way + 'Yandex\YandexBrowser\User Data\Default\Cache';
+  ClearFolder(s);
+
+  //Google Chrome
+  s := way + 'Google\Chrome\User Data\Default\Cache';
+  ClearFolder(s);
+
+  //Opera Browser
+  s := way + 'Opera Software\Opera Stable\Cache';
+  ClearFolder(s);
+
+ //Mozilla Firefox
+  if FindFirst(way + 'Mozilla\Firefox\Profiles\*.*', faAnyFile, tsr) = 0 then
+    begin
+      repeat
+        s := way + 'Mozilla\Firefox\Profiles\' + tsr.name + '\cache2';
+        ClearFolder(s);
+      until FindNext(tsr) <> 0;
+        FindClose(tsr);
+      end;
+
+  //Microsoft Edge
+  s := way + 'Packages\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\LocalCache';
+    ClearFolder(s);
+  s := way + 'Packages\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\LocalState';
+    ClearFolder(s);
+
+ end;
+
+ procedure CleanTempFiles();
+ var
+    s, way, UserName: string;
+ begin
+  UserName := GetUserName;
+  way := 'C:\Users\' + UserName + '\AppData\Local\';
+
+  s := 'C:\Windows\Temp';
+    ClearFolder(s);
+   s := way + 'Temp';
+    ClearFolder(s);
+
+ end;
+
+ procedure CleanDownloads();
+  var
+    s,UserName: string;
+  begin
+    UserName := GetUserName;
+    s := 'C:\Users\' + UserName + '\downloads';
+    ClearFolder(s);
+  end;
+
+
+function FreeDisk(): real;
+var
+    FreeBytesAvailableToCaller: TLargeInteger;
+    FreeSize: TLargeInteger;
+    TotalSize: TLargeInteger;
+  begin
+    GetDiskFreeSpaceEx('c:',
+    FreeBytesAvailableToCaller,
+    Totalsize,
+    @FreeSize);
+    result := FreeSize/(1024*1024);
+  end;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ procedure TForm1.VE_CBClick(Sender: TObject);
+  begin
+    if VE_CB.Checked then
+      begin
+        onVE_CB.Enabled := True;
+        offVE_CB.Enabled := True;
+
+      end
+    else
+      begin
+        onVE_CB.Enabled := False;
+        offVE_CB.Enabled := False;
+      end;
+  end;
+
+procedure TForm1.onVE_CBClick(Sender: TObject);
+  begin
+    if onVE_CB.Checked then offVE_CB.Checked := False
+      else if (not offVE_CB.Checked) and (not onVE_CB.Checked) then
+      begin
+        VE_CB.Checked := False;
+        offVE_CB.Checked := True;
+      end;
+  end;
+
+procedure TForm1.offVE_CBClick(Sender: TObject);
+  begin
+    if offVE_CB.Checked then onVE_CB.Checked := False
+      else if (not offVE_CB.Checked) and (not onVE_CB.Checked) then
+         begin
+        VE_CB.Checked := False;
+        offVE_CB.Checked := True;
+      end;
+  end;
+
+
+
+procedure TForm1.MainScrollBoxMouseWheel(Sender: TObject; Shift: TShiftState;
+  WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+  begin
+    if (WheelDelta > 0)
+      then  MainScrollBox.VertScrollBar.Position:= MainScrollBox.VertScrollBar.Position-12
+        else
+          MainScrollBox.VertScrollBar.Position:= MainScrollBox.VertScrollBar.Position+12;
+  end;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+procedure TForm1.SpeedButton4wwwwClick(Sender: TObject);
+  var
+    Reg: TRegIniFile;
+    i : integer;
+    tab : integer;
+    Chb:TCheckBox;
+  begin
+    Reg := TRegIniFile.Create;
+    Reg.RootKey := HKEY_CURRENT_USER;
+
+    tab := 0;
+
+    Reg.OpenKey('Software\Microsoft\Windows\CurrentVersion\Explorer', true);
+      Reg.WriteInteger('VisualEffects','VisualFXSetting', 0);
+        Reg.CloseKey;
+
+
+      Chb := TCheckBox.Create(MainScrollBox);
+      Chb.parent := MainScrollBox;
+      Chb.Caption:='lan1';
+      Chb.Top:=160+tab;
+      tab :=tab + 25;
+      Chb.Left := 25;
+
+
+
+end;
+
+procedure RegEdit(way: string; key: string; val: string);
+  var
+    Reg : TRegistry;
+    s : string;
+  begin
+    Reg := TRegistry.Create;
+    s := way;
+
+    s := Copy(s, 1, Pos('\', s)-1);
+
+    if (s = 'HKEY_CURRENT_USER') then Reg.RootKey := HKEY_CURRENT_USER
+      else
+        if (s = 'HKEY_LOCAL_MACHINE') then Reg.RootKey := HKEY_LOCAL_MACHINE
+          else Exit;
+
+    way := copy(way,length(s)+2,length(way)-1);
+
+    if Reg.OpenKey(way, True) then
+    Reg.WriteString(key, val);
+
+    Reg.CloseKey;
+    Reg.Free;
+  end;
+
+
+
+
+procedure StartBoost;
+  begin
+    RegEdit('HKEY_LOCAL_MACHINE\SYSTEM\ControlSet002\Control','MenuShowDelay','50');
+  end;
+
+
+
+
+
+
+
+
+
+
+
+procedure VE_switch();
+  var
+    Reg: TRegistry;
+    s : integer;
+    one : dword;
+  begin
+    if  not Form1.VE_CB.Checked then Exit;
+
+    Reg := TRegIniFile.Create;
+
+  Reg.RootKey := HKEY_CURRENT_USER;
+  Reg.OpenKey('Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects', false);
+    s := reg.ReadInteger('VisualFXSetting');
+
+    if (Form1.offVE_CB.Checked) and (s = 2) then Exit;
+    if (Form1.onVE_CB.Checked) and (s = 1) then Exit;
+
+    ShellExecute(Form1.Handle, 'open','c:\Windows\system32\SystemPropertiesPerformance.exe', nil, nil, SW_SHOWNORMAL);
+        Sleep(1000);
+    if Form1.offVE_CB.Checked
+      then
+        case s of
+          0: move(40,2);
+          1: move(40,1);
+          3: move(38,1);
+        end
+      else
+        case s of
+          0: move(40,1);
+          2: move(38,1);
+          3: move(38,2);
+        end;
+ end;
+
+ procedure cbchek();
+  var
+    Svc : Service;
+  begin
+
+
+
+
+    if Form1.CB1.Checked then Svc.BiomWinSvc(0)
+      else Svc.BiomWinSvc(1);
+    if Form1.CB2.Checked then Svc.Firewall(0)
+      else Svc.Firewall(1);
+    if Form1.CB3.Checked then Svc.IPHelperSvc(0)
+      else Svc.IPHelperSvc(1);
+    if Form1.CB4.Checked then Svc.PrintManager(0)
+      else Svc.PrintManager(1);
+    if Form1.CB5.Checked then Svc.DowMapManager(0)
+      else Svc.DowMapManager(1);
+    if Form1.CB6.Checked then Svc.XboxLiveNet(0)
+      else Svc.XboxLiveNet(1);
+    if Form1.CB7.Checked then Svc.DiagTrackSvc(0)
+      else Svc.DiagTrackSvc(1);
+    if Form1.CB8.Checked then Svc.ProgCompatbltyAssistSvc(0)
+      else Svc.ProgCompatbltyAssistSvc(1);
+    if Form1.CB9.Checked then Svc.WinErrLogSvc(0)
+      else Svc.WinErrLogSvc(1);
+    if Form1.CB10.Checked then Svc.BitLockDrvEncryptSvc(0)
+      else Svc.BitLockDrvEncryptSvc(1);
+    if Form1.CB11.Checked then Svc.RemoteReg(0)
+      else Svc.RemoteReg(1);
+    if Form1.CB12.Checked then Svc.SecurityCenter(0)
+      else Svc.SecurityCenter(1);
+    if Form1.CB13.Checked then Svc.Superfetch(0)
+      else Svc.Superfetch(1);
+
+
+
+
+  end;
+
+ procedure TForm1.ApplyClick(Sender: TObject);
+ begin
+    VE_switch();
+    cbchek();
+ end;
+
+
+
+
+procedure ShutDownBoost;
+  begin
+    RegEdit('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control','WaitToKillServiceTimeout','3000');
+
+  end;
+
+
+
+ procedure TForm1.ClearBtnClick(Sender: TObject);
+
+ var
+    tmp : real;
+  begin
+    ProcessLabel.Caption := 'Подождите . . .';
+
+
+    tmp := FreeDisk;
+
+    if (CacheCB.Checked = True)
+      then CleanBrowsCache();
+    if (TmpFilesCB.Checked = True)
+      then CleanTempFiles();
+    if (DownloadsCB.Checked = True)
+      then CleanDownloads();
+    if (RecycleBinCB.Checked = True)
+      then EmptyRecycleBin();
+
+    ProcessLabel.Caption := ' ';
+    ProcessLabel.Caption := 'Было удалено: ' + FloatToStr (roundto((FreeDisk - tmp), -2)) + ' Мбайт' ;
+
+
+end;
+
+
+end.
+
